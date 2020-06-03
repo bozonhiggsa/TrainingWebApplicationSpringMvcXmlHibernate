@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <context:component-scan base-package="training.web.application"/>
+
+    <mvc:annotation-driven/>
+
+    <!--Database Information-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="org.apache.derby.jdbc.AutoloadedDriver"/>
+        <property name="url" value="jdbc:derby:/home/ihor/install/opt/db-derby-10.14.2.0-bin/db/training_web_application"/>
+    </bean>
+
+    <!--Hibernate 4 SessionFactory Bean definition-->
+    <bean id="hibernate4AnnotatedSessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="annotatedClasses">
+            <list>
+                <value>training.web.application.model.Admin</value>
+                <value>training.web.application.model.User</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+<!--                <prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>-->
+                <prop key="hibernate.show_sql">true</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--UserDao and UserService Bean-->
+    <bean id="userDao" class="training.web.application.dao.UserDaoImpl">
+        <property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory"/>
+    </bean>
+
+    <bean id="userService" class="training.web.application.service.UserServiceImpl">
+        <property name="userDao" ref="userDao"/>
+    </bean>
+
+    <!--AdminDao and AdminService Bean-->
+    <bean id="adminDao" class="training.web.application.dao.AdminDaoImpl">
+        <property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory"/>
+    </bean>
+
+    <bean id="adminService" class="training.web.application.service.AdminServiceImpl">
+        <property name="adminDao" ref="adminDao"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <context:component-scan base-package="training.web.application.controller"/>
+
+    <mvc:annotation-driven/>
+
+    <bean name="resolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/createUser"/>
+            <bean class="training.web.application.interceptor.ValidateDataInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/createUser"/>
+            <bean class="training.web.application.interceptor.MatchUserInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <mvc:view-controller path="/loginPage" view-name="login" status-code="200"/>
+    <mvc:view-controller path="/registrationPage" view-name="registration" status-code="200"/>
+
+    <mvc:resources mapping="/static/**" location="/js/, /css/, /img/">
+        <mvc:cache-control max-age="31536000"/>
+        <mvc:resource-chain resource-cache="false">
+            <mvc:resolvers>
+                <mvc:version-resolver>
+                    <mvc:content-version-strategy patterns="/**"/>
+                </mvc:version-resolver>
+            </mvc:resolvers>
+        </mvc:resource-chain>
+    </mvc:resources>
+
+</beans>
